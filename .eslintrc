@@ -9,6 +9,7 @@
         ]
       }
     ],
-    "no-console": "off"
+    "no-console": "off",
+    "devDependencies": true
   }
 }
