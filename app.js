@@ -13,10 +13,11 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-/*app.use((req, res, next) => {
-  req.user = { id: '64358db832b86e2c13a3a81f' };
+//миддлвэр для временного решения вопроса с регистрацией
+app.use((req, res, next) => {
+  req.user = { _id: '64358db832b86e2c13a3a81f' };
   next();
-});*/
+});
 
 //ТУТ БУДУТ ТОЧКИ ВХОДА ДЛЯ РОУТЕРОВ
 app.use(router);

@@ -1,12 +1,11 @@
 const Card = require('../models/card');
 
+//создать карточку
 const createCard = (req, res) => {
-  const { id } = req.user;
-  const { link } = req.body;
-  Card.create({
-    link,
-    owner: id,
-  })
+  const { _id } = req.user;
+  const { name, link } = req.body;
+
+  Card.create({ name, link, owner: _id })
     .then((newCard) => {
       res.send(newCard);
     })
@@ -15,17 +14,24 @@ const createCard = (req, res) => {
     });
 };
 
-const getCard = (req, res) => {
-  const { id } = req.params;
+//вернет все карточки
+const getAllCards = (req, res) => {
+  Card.find({}).then((cards) => {
+    res.send(cards);
+  });
+};
 
-  Card.findById(id).then((card) => {
-    res.send(card).catch((err) => {
-      res.send(err);
-    });
+//удалит карточку
+const deleteCard = (req, res) => {
+  const { cardId } = req.params;
+
+  Card.findByIdAndRemove(cardId).then((card) => {
+    res.send(card);
   });
 };
 
 module.exports = {
   createCard,
-  getCard,
+  getAllCards,
+  deleteCard,
 };
