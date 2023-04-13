@@ -10,6 +10,11 @@
       }
     ],
     "no-console": "off",
-    "devDependencies": true
+    "comma-dangle": "off"
+  },
+  "env": {
+    "browser": true,
+    "commonjs": true,
+    "es2021": true
   }
 }

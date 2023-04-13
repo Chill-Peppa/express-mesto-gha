@@ -45,7 +45,6 @@ const deleteCard = (req, res) => {
         res.status(ERROR_NOT_FOUND).send({
           message: 'Карточка с указанным id не найдена.',
         });
-        return;
       }
     })
     .catch(() => {
@@ -70,7 +69,6 @@ const likeCard = (req, res) => {
         res.status(ERROR_NOT_FOUND).send({
           message: 'Передан несуществующий id карточки.',
         });
-        return;
       }
     })
     .catch((err) => {
@@ -102,7 +100,6 @@ const dislikeCard = (req, res) => {
         res.status(ERROR_NOT_FOUND).send({
           message: 'Передан несуществующий id карточки.',
         });
-        return;
       }
     })
     .catch((err) => {

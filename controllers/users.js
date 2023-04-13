@@ -61,7 +61,6 @@ const updateProfile = (req, res) => {
         res.status(ERROR_NOT_FOUND).send({
           message: 'Пользователь c указанным id не найден.',
         });
-        return;
       }
     })
     .catch((err) => {
@@ -89,7 +88,6 @@ const updateAvatar = (req, res) => {
         res.status(ERROR_NOT_FOUND).send({
           message: 'Пользователь c указанным id не найден.',
         });
-        return;
       }
     })
     .catch((err) => {

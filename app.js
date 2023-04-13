@@ -1,4 +1,5 @@
 const express = require('express');
+// eslint-disable-next-line import/no-extraneous-dependencies
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
@@ -11,7 +12,6 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-//миддлвэр для временного решения вопроса с регистрацией
 app.use((req, res, next) => {
   req.user = { _id: '64358db832b86e2c13a3a81f' };
   next();
