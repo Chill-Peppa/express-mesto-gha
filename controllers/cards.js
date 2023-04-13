@@ -63,13 +63,13 @@ const likeCard = (req, res) => {
     { new: true }
   )
     .then((card) => {
-      res.send(card);
-
       if (!card) {
         res.status(ERROR_NOT_FOUND).send({
           message: 'Передан несуществующий id карточки.',
         });
       }
+
+      res.send(card);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -94,13 +94,13 @@ const dislikeCard = (req, res) => {
     { new: true }
   )
     .then((card) => {
-      res.send(card);
-
       if (!card) {
         res.status(ERROR_NOT_FOUND).send({
           message: 'Передан несуществующий id карточки.',
         });
       }
+
+      res.send(card);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {

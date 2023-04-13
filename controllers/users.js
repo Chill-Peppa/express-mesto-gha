@@ -58,15 +58,22 @@ const updateProfile = (req, res) => {
   const owner = req.user._id;
   const { name, about } = req.body;
 
-  User.findByIdAndUpdate(owner, { name, about })
+  User.findByIdAndUpdate(
+    owner,
+    { name, about },
+    {
+      new: true,
+      runValidators: true,
+    }
+  )
     .then((user) => {
-      res.send({ data: user });
-
       if (!user) {
         res.status(ERROR_NOT_FOUND).send({
           message: 'Пользователь c указанным id не найден.',
         });
       }
+
+      res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -85,15 +92,22 @@ const updateAvatar = (req, res) => {
   const owner = req.user._id;
   const { avatar } = req.body;
 
-  User.findByIdAndUpdate(owner, { avatar })
+  User.findByIdAndUpdate(
+    owner,
+    { avatar },
+    {
+      new: true,
+      runValidators: true,
+    }
+  )
     .then((user) => {
-      res.send({ data: user });
-
       if (!user) {
         res.status(ERROR_NOT_FOUND).send({
           message: 'Пользователь c указанным id не найден.',
         });
       }
+
+      res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
