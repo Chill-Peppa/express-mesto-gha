@@ -105,7 +105,7 @@ const dislikeCard = (req, res) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         res.status(ERROR).send({
-          message: 'Переданы некорректные данные для удаления лайка.',
+          message: 'Введен некорректный id.',
         });
         return;
       }
