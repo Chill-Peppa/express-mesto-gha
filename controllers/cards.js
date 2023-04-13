@@ -1,6 +1,6 @@
 const Card = require('../models/card');
+const { ERROR, ERROR_NOT_FOUND, ERROR_DEFAULT } = require('../utils/constants');
 
-//создать карточку
 const createCard = (req, res) => {
   const { _id } = req.user;
   const { name, link } = req.body;
@@ -10,24 +10,49 @@ const createCard = (req, res) => {
       res.send(newCard);
     })
     .catch((err) => {
-      res.send(err);
+      if (err.name === 'ValidationError') {
+        res.status(ERROR).send({
+          message: 'Переданы некорректные данные при создании карточки.',
+        });
+        return;
+      }
+      res
+        .status(ERROR_DEFAULT)
+        .send({ message: 'Произошла ошибка в работе сервера.' });
     });
 };
 
-//вернет все карточки
 const getAllCards = (req, res) => {
-  Card.find({}).then((cards) => {
-    res.send(cards);
-  });
+  Card.find({})
+    .then((cards) => {
+      res.send(cards);
+    })
+    .catch(() => {
+      res
+        .status(ERROR_DEFAULT)
+        .send({ message: 'Произошла ошибка в работе сервера.' });
+    });
 };
 
-//удалит карточку
 const deleteCard = (req, res) => {
   const { cardId } = req.params;
 
-  Card.findByIdAndRemove(cardId).then((card) => {
-    res.send(card);
-  });
+  Card.findByIdAndRemove(cardId)
+    .then((card) => {
+      res.send(card);
+
+      if (!card) {
+        res.status(ERROR_NOT_FOUND).send({
+          message: 'Карточка с указанным id не найдена.',
+        });
+        return;
+      }
+    })
+    .catch(() => {
+      res
+        .status(ERROR_DEFAULT)
+        .send({ message: 'Произошла ошибка в работе сервера.' });
+    });
 };
 
 const likeCard = (req, res) => {
@@ -37,9 +62,28 @@ const likeCard = (req, res) => {
     cardId,
     { $addToSet: { likes: owner } }, // добавить _id в массив, если его там нет
     { new: true }
-  ).then((card) => {
-    res.send(card);
-  });
+  )
+    .then((card) => {
+      res.send(card);
+
+      if (!card) {
+        res.status(ERROR_NOT_FOUND).send({
+          message: 'Передан несуществующий id карточки.',
+        });
+        return;
+      }
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(ERROR).send({
+          message: 'Переданы некорректные данные для постановки лайка.',
+        });
+        return;
+      }
+      res
+        .status(ERROR_DEFAULT)
+        .send({ message: 'Произошла ошибка в работе сервера.' });
+    });
 };
 
 const dislikeCard = (req, res) => {
@@ -50,9 +94,28 @@ const dislikeCard = (req, res) => {
     cardId,
     { $pull: { likes: owner } }, // убрать _id из массива
     { new: true }
-  ).then((card) => {
-    res.send(card);
-  });
+  )
+    .then((card) => {
+      res.send(card);
+
+      if (!card) {
+        res.status(ERROR_NOT_FOUND).send({
+          message: 'Передан несуществующий id карточки.',
+        });
+        return;
+      }
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(ERROR).send({
+          message: 'Переданы некорректные данные для удаления лайка.',
+        });
+        return;
+      }
+      res
+        .status(ERROR_DEFAULT)
+        .send({ message: 'Произошла ошибка в работе сервера.' });
+    });
 };
 
 module.exports = {

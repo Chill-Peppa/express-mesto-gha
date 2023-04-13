@@ -29,7 +29,6 @@ const getUserById = (req, res) => {
     });
 };
 
-//создаем нового юзера
 const createUser = (req, res) => {
   const { name, about, avatar } = req.body;
 
@@ -50,7 +49,6 @@ const createUser = (req, res) => {
     });
 };
 
-//обновляет профиль
 const updateProfile = (req, res) => {
   const owner = req.user._id;
   const { name, about } = req.body;
@@ -79,7 +77,6 @@ const updateProfile = (req, res) => {
     });
 };
 
-//обновляет аватар
 const updateAvatar = (req, res) => {
   const owner = req.user._id;
   const { avatar } = req.body;
