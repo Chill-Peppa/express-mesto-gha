@@ -20,8 +20,9 @@ const getUserById = (req, res) => {
         res.status(ERROR_NOT_FOUND).send({
           message: 'Пользователь не найден.',
         });
+      } else {
+        res.send({ data: user });
       }
-      res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -71,9 +72,9 @@ const updateProfile = (req, res) => {
         res.status(ERROR_NOT_FOUND).send({
           message: 'Пользователь c указанным id не найден.',
         });
+      } else {
+        res.send({ data: user });
       }
-
-      res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -105,9 +106,9 @@ const updateAvatar = (req, res) => {
         res.status(ERROR_NOT_FOUND).send({
           message: 'Пользователь c указанным id не найден.',
         });
+      } else {
+        res.send({ data: user });
       }
-
-      res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
