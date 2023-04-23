@@ -1,6 +1,7 @@
 const User = require('../models/user');
-//const bcrypt = require('bcryptjs');
-//const validator = require('validator');
+const bcrypt = require('bcryptjs');
+const validator = require('validator');
+const jwt = require('jsonwebtoken');
 const { ERROR, ERROR_NOT_FOUND, ERROR_DEFAULT } = require('../utils/constants');
 
 const getUsers = (req, res) => {
@@ -38,11 +39,18 @@ const getUserById = (req, res) => {
 };
 
 const createUser = (req, res) => {
-  const { name, about, avatar, email, password } = req.body;
+  const { name, about, avatar, email } = req.body;
 
-  User.create({ name, about, avatar, email, password })
+  bcrypt
+    .hash(req.body.password, 5)
+    .then((hash) => User.create({ name, about, avatar, email, password: hash }))
     .then((newUser) => {
-      res.send(newUser);
+      res.send({
+        name: newUser.name,
+        about: newUser.about,
+        avatar: newUser.avatar,
+        email: newUser.email,
+      });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -55,6 +63,38 @@ const createUser = (req, res) => {
         .status(ERROR_DEFAULT)
         .send({ message: 'Произошла ошибка в работе сервера.' });
     });
+};
+
+const login = (req, res) => {
+  const { email, password } = req.body;
+
+  if (validator.isEmail(email)) {
+    User.findOne({ email })
+      .then((user) => {
+        if (!user) {
+          res.status(ERROR_NOT_FOUND).send({
+            message: 'Пользователь не найден.',
+          });
+        }
+        return bcrypt.compare(password, user.password);
+      })
+      .then((matched) => {
+        if (!matched) {
+          // хеши не совпали — отклоняем промис
+          res.status(401).send({
+            message: 'Неправильные почта или пароль.',
+          });
+        }
+
+        const token = jwt.sign({ _id: user._id }, 'some-secret-key', {
+          expiresIn: '7d',
+        });
+        res.send({ token });
+      })
+      .catch((err) => {
+        res.status(401).send({ message: err.message });
+      });
+  }
 };
 
 const updateProfile = (req, res) => {
@@ -131,4 +171,5 @@ module.exports = {
   getUserById,
   updateProfile,
   updateAvatar,
+  login,
 };
