@@ -1,4 +1,6 @@
 const User = require('../models/user');
+//const bcrypt = require('bcryptjs');
+//const validator = require('validator');
 const { ERROR, ERROR_NOT_FOUND, ERROR_DEFAULT } = require('../utils/constants');
 
 const getUsers = (req, res) => {
@@ -36,9 +38,9 @@ const getUserById = (req, res) => {
 };
 
 const createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
+  const { name, about, avatar, email, password } = req.body;
 
-  User.create({ name, about, avatar })
+  User.create({ name, about, avatar, email, password })
     .then((newUser) => {
       res.send(newUser);
     })

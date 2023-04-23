@@ -16,5 +16,8 @@
     "browser": true,
     "commonjs": true,
     "es2021": true
-  }
+  },
+  "object-curly-newline": ["error", {
+    "ObjectPattern": "never"
+}]
 }
