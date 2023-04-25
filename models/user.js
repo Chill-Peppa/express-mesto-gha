@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const validator = require('validator');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -22,11 +23,16 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
+    validate: {
+      validator: (value) => validator.isEmail(value),
+      message: 'Некорректно введен email. Ожидается строка.',
+    },
   },
   password: {
     type: String,
     required: true,
     minLength: 8,
+    select: false, // так хэш пароля не будет по умолчанию возвращаться из базы
   },
 });
 

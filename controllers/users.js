@@ -1,6 +1,5 @@
 const User = require('../models/user');
 const bcrypt = require('bcryptjs');
-const validator = require('validator');
 const jwt = require('jsonwebtoken');
 const { ERROR, ERROR_NOT_FOUND, ERROR_DEFAULT } = require('../utils/constants');
 
@@ -18,6 +17,29 @@ const getUserById = (req, res) => {
   const { userId } = req.params;
 
   User.findById(userId)
+    .then((user) => {
+      if (!user) {
+        res.status(ERROR_NOT_FOUND).send({
+          message: 'Пользователь не найден.',
+        });
+      } else {
+        res.send({ data: user });
+      }
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(ERROR).send({ message: 'Введен некорректный id.' });
+        return;
+      }
+      res
+        .status(ERROR_DEFAULT)
+        .send({ message: 'Произошла ошибка в работе сервера.' });
+    });
+};
+
+//не понятно работает ли!!!!!!!!!!!(6я таска)
+const getInfoMe = (req, res) => {
+  User.findById({ _id: req.user._id })
     .then((user) => {
       if (!user) {
         res.status(ERROR_NOT_FOUND).send({
@@ -68,21 +90,19 @@ const createUser = (req, res) => {
 const login = (req, res) => {
   const { email, password } = req.body;
 
-  if (validator.isEmail(email)) {
-    User.findOne({ email })
-      .then((user) => {
-        if (!user) {
-          res.status(ERROR_NOT_FOUND).send({
-            message: 'Пользователь не найден.',
-          });
-        }
-        return bcrypt.compare(password, user.password);
-      })
-      .then((matched) => {
+  User.findOne({ email })
+    .select('+password')
+    .then((user) => {
+      if (!user) {
+        res.status(ERROR_NOT_FOUND).send({
+          message: 'Неправильная почта или пароль.',
+        });
+      }
+      return bcrypt.compare(password, user.password).then((matched) => {
         if (!matched) {
           // хеши не совпали — отклоняем промис
           res.status(401).send({
-            message: 'Неправильные почта или пароль.',
+            message: 'Неправильная почта или пароль.',
           });
         }
 
@@ -90,11 +110,11 @@ const login = (req, res) => {
           expiresIn: '7d',
         });
         res.send({ token });
-      })
-      .catch((err) => {
-        res.status(401).send({ message: err.message });
       });
-  }
+    })
+    .catch((err) => {
+      res.status(401).send({ message: err.message });
+    });
 };
 
 const updateProfile = (req, res) => {
@@ -168,6 +188,7 @@ const updateAvatar = (req, res) => {
 module.exports = {
   createUser,
   getUsers,
+  getInfoMe,
   getUserById,
   updateProfile,
   updateAvatar,
