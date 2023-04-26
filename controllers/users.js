@@ -1,66 +1,59 @@
 const User = require('../models/user');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { ERROR, ERROR_NOT_FOUND, ERROR_DEFAULT } = require('../utils/constants');
+const BadRequestError = require('../errors/badrequest-err');
+const NotFoundError = require('../errors/notfound-err');
+const ConflictError = require('../errors/conflict-err');
+const UnauthorizedError = require('../errors/unauthorized-err');
 
-const getUsers = (req, res) => {
+const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch(() => {
-      res
-        .status(ERROR_DEFAULT)
-        .send({ message: 'Произошла ошибка в работе сервера.' });
+    .catch((err) => {
+      next(err);
     });
 };
 
-const getUserById = (req, res) => {
+const getUserById = (req, res, next) => {
   const { userId } = req.params;
 
   User.findById(userId)
     .then((user) => {
       if (!user) {
-        res.status(ERROR_NOT_FOUND).send({
-          message: 'Пользователь не найден.',
-        });
+        throw new NotFoundError('Пользователь не найден.');
       } else {
         res.send({ data: user });
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(ERROR).send({ message: 'Введен некорректный id.' });
+        next(new BadRequestError('Введен некорректный id.'));
         return;
       }
-      res
-        .status(ERROR_DEFAULT)
-        .send({ message: 'Произошла ошибка в работе сервера.' });
+      next(err);
     });
 };
 
-//не понятно работает ли!!!!!!!!!!!(6я таска)
-const getInfoMe = (req, res) => {
+//НЕ ЗАБУДЬ ПРОВЕРИТЬ РАБОТАЕТ ЛИ ЗАПРОС
+const getInfoMe = (req, res, next) => {
   User.findById({ _id: req.user._id })
     .then((user) => {
       if (!user) {
-        res.status(ERROR_NOT_FOUND).send({
-          message: 'Пользователь не найден.',
-        });
+        throw new NotFoundError('Пользователь не найден.');
       } else {
         res.send({ data: user });
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(ERROR).send({ message: 'Введен некорректный id.' });
+        next(new BadRequestError('Пользователя с  таким id не существует.'));
         return;
       }
-      res
-        .status(ERROR_DEFAULT)
-        .send({ message: 'Произошла ошибка в работе сервера.' });
+      next(err);
     });
 };
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const { name, about, avatar, email } = req.body;
 
   bcrypt
@@ -75,35 +68,33 @@ const createUser = (req, res) => {
       });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(ERROR).send({
-          message: 'Переданы некорректные данные при создании пользователя.',
-        });
-        return;
+      if (err.code === 11000) {
+        next(
+          new ConflictError('Пользователь с таким email уже зарегистрирован')
+        );
+      } else if (err.name === 'ValidationError') {
+        throw new BadRequestError(
+          'Переданы некорректные данные при создании пользователя.'
+        );
       }
-      res
-        .status(ERROR_DEFAULT)
-        .send({ message: 'Произошла ошибка в работе сервера.' });
+
+      next(err);
     });
 };
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
 
   User.findOne({ email })
     .select('+password')
     .then((user) => {
       if (!user) {
-        res.status(ERROR_NOT_FOUND).send({
-          message: 'Неправильная почта или пароль.',
-        });
+        throw new NotFoundError('Неправильная почта или пароль.');
       }
       return bcrypt.compare(password, user.password).then((matched) => {
         if (!matched) {
           // хеши не совпали — отклоняем промис
-          res.status(401).send({
-            message: 'Неправильная почта или пароль.',
-          });
+          throw new UnauthorizedError('Неправильная почта или пароль.');
         }
 
         const token = jwt.sign({ _id: user._id }, 'some-secret-key', {
@@ -113,11 +104,11 @@ const login = (req, res) => {
       });
     })
     .catch((err) => {
-      res.status(401).send({ message: err.message });
+      next(err);
     });
 };
 
-const updateProfile = (req, res) => {
+const updateProfile = (req, res, next) => {
   const owner = req.user._id;
   const { name, about } = req.body;
 
@@ -131,27 +122,25 @@ const updateProfile = (req, res) => {
   )
     .then((user) => {
       if (!user) {
-        res.status(ERROR_NOT_FOUND).send({
-          message: 'Пользователь c указанным id не найден.',
-        });
+        throw new NotFoundError('Пользователь c указанным id не найден.');
       } else {
         res.send({ data: user });
       }
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(ERROR).send({
-          message: 'Переданы некорректные данные при обновлении профиля.',
-        });
+        next(
+          new BadRequestError(
+            'Переданы некорректные данные при обновлении профиля.'
+          )
+        );
         return;
       }
-      res
-        .status(ERROR_DEFAULT)
-        .send({ message: 'Произошла ошибка в работе сервера.' });
+      next(err);
     });
 };
 
-const updateAvatar = (req, res) => {
+const updateAvatar = (req, res, next) => {
   const owner = req.user._id;
   const { avatar } = req.body;
 
@@ -165,23 +154,21 @@ const updateAvatar = (req, res) => {
   )
     .then((user) => {
       if (!user) {
-        res.status(ERROR_NOT_FOUND).send({
-          message: 'Пользователь c указанным id не найден.',
-        });
+        throw new NotFoundError('Пользователь c указанным id не найден.');
       } else {
         res.send({ data: user });
       }
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(ERROR).send({
-          message: 'Переданы некорректные данные при обновлении аватара.',
-        });
+        next(
+          new BadRequestError(
+            'Переданы некорректные данные при обновлении аватара.'
+          )
+        );
         return;
       }
-      res
-        .status(ERROR_DEFAULT)
-        .send({ message: 'Произошла ошибка в работе сервера.' });
+      next(err);
     });
 };
 
