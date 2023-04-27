@@ -10,7 +10,10 @@
       }
     ],
     "no-console": "off",
-    "comma-dangle": "off"
+    "comma-dangle": "off",
+    "object-curly-newline": ["error", {
+      "ObjectPattern": "never"
+  }]
   },
   "env": {
     "browser": true,

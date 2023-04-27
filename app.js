@@ -3,11 +3,12 @@ const mongoose = require('mongoose');
 
 const { PORT = 3000 } = process.env;
 const { errors } = require('celebrate');
+
 const app = express();
+const { celebrate, Joi } = require('celebrate');
 const router = require('./routes');
 const { login, createUser } = require('./controllers/users');
 const { auth } = require('./middlewares/auth');
-const { celebrate, Joi } = require('celebrate');
 const { regExp } = require('./utils/constants');
 const NotFoundError = require('./errors/notfound-err');
 
@@ -49,7 +50,7 @@ app.use((req, res, next) => {
 
 app.use(errors());
 
-//централизованный обработчик ошибок
+// централизованный обработчик ошибок
 app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;
 
@@ -57,6 +58,7 @@ app.use((err, req, res, next) => {
     message:
       statusCode === 500 ? 'Произошла ошибка в работе сервера.' : message,
   });
+  next();
 });
 
 app.listen(PORT, () => {
