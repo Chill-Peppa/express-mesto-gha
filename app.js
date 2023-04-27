@@ -8,6 +8,7 @@ const router = require('./routes');
 const { login, createUser } = require('./controllers/users');
 const { auth } = require('./middlewares/auth');
 const { celebrate, Joi } = require('celebrate');
+const { regExp } = require('./utils/constants');
 const NotFoundError = require('./errors/notfound-err');
 
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
@@ -31,7 +32,7 @@ app.post(
     body: Joi.object().keys({
       name: Joi.string().min(2).max(30),
       about: Joi.string().min(2).max(30),
-      avatar: Joi.string(), //скорее всего тут будет еще регулярное выражение
+      avatar: Joi.string().regex(regExp),
       email: Joi.string().required().email(),
       password: Joi.string().required().min(8),
     }),
