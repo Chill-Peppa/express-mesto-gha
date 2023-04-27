@@ -34,7 +34,6 @@ const getUserById = (req, res, next) => {
     });
 };
 
-//НЕ ЗАБУДЬ ПРОВЕРИТЬ РАБОТАЕТ ЛИ ЗАПРОС
 const getInfoMe = (req, res, next) => {
   User.findById({ _id: req.user._id })
     .then((user) => {

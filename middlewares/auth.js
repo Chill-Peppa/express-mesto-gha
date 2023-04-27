@@ -7,10 +7,7 @@ const auth = (req, res, next) => {
     return res.status(401).send({ message: 'Необходима авторизация' });
   }
 
-  // извлечём токен
   const token = authorization.replace('Bearer ', '');
-
-  //верифицируем методом verify
   let payload;
 
   try {
@@ -23,7 +20,7 @@ const auth = (req, res, next) => {
 
   req.user = payload; // записываем пейлоуд в объект запроса
 
-  next(); // пропускаем запрос дальше
+  next();
 };
 
 module.exports = {

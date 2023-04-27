@@ -1,4 +1,5 @@
 const usersRouter = require('express').Router();
+const { celebrate, Joi } = require('celebrate');
 
 const { getUsers } = require('../controllers/users');
 const { getInfoMe } = require('../controllers/users');
@@ -8,8 +9,35 @@ const { updateAvatar } = require('../controllers/users');
 
 usersRouter.get('/', getUsers);
 usersRouter.get('/me', getInfoMe);
-usersRouter.get('/:userId', getUserById);
-usersRouter.patch('/me', updateProfile);
-usersRouter.patch('/me/avatar', updateAvatar);
+usersRouter.get(
+  '/:userId',
+  celebrate({
+    params: Joi.object().keys({
+      cardId: Joi.string().required().alphanum(),
+    }),
+  }),
+  getUserById
+);
+
+usersRouter.patch(
+  '/me',
+  celebrate({
+    body: Joi.object().keys({
+      name: Joi.string().min(2).max(30),
+      about: Joi.string().min(2).max(30),
+    }),
+  }),
+  updateProfile
+);
+
+usersRouter.patch(
+  '/me/avatar',
+  celebrate({
+    body: Joi.object().keys({
+      avatar: Joi.string(),
+    }),
+  }),
+  updateAvatar
+);
 
 module.exports = usersRouter;
