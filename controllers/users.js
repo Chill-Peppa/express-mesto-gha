@@ -8,7 +8,7 @@ const UnauthorizedError = require('../errors/unauthorized-err');
 
 const getUsers = (req, res, next) => {
   User.find({})
-    .then((users) => res.send({ data: users }))
+    .then((users) => res.status(200).send({ data: users }))
     .catch((err) => {
       next(err);
     });
@@ -22,7 +22,7 @@ const getUserById = (req, res, next) => {
       if (!user) {
         throw new NotFoundError('Пользователь не найден.');
       } else {
-        res.send({ data: user });
+        res.status(200).send({ data: user });
       }
     })
     .catch((err) => {
@@ -40,7 +40,7 @@ const getInfoMe = (req, res, next) => {
       if (!user) {
         throw new NotFoundError('Пользователь не найден.');
       } else {
-        res.send({ data: user });
+        res.status(200).send({ data: user });
       }
     })
     .catch((err) => {
@@ -77,9 +77,9 @@ const createUser = (req, res, next) => {
             'Переданы некорректные данные при создании пользователя.'
           )
         );
+      } else {
+        next(err);
       }
-
-      next(err);
     });
 };
 
@@ -90,7 +90,7 @@ const login = (req, res, next) => {
     .select('+password')
     .then((user) => {
       if (!user) {
-        throw new NotFoundError('Неправильная почта или пароль.');
+        throw new UnauthorizedError('Неправильная почта или пароль.');
       }
       return bcrypt.compare(password, user.password).then((matched) => {
         if (!matched) {
@@ -101,7 +101,7 @@ const login = (req, res, next) => {
         const token = jwt.sign({ _id: user._id }, 'some-secret-key', {
           expiresIn: '7d',
         });
-        res.send({ token });
+        res.status(200).send({ token });
       });
     })
     .catch((err) => {
