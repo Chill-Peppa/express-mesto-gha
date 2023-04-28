@@ -59,7 +59,7 @@ const createUser = (req, res, next) => {
     .hash(req.body.password, 5)
     .then((hash) => User.create({ email, password: hash, name, about, avatar }))
     .then((newUser) => {
-      res.status(201).send({
+      res.status(200).send({
         email: newUser.email,
         name: newUser.name,
         about: newUser.about,
@@ -68,10 +68,12 @@ const createUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.code === 11000) {
+        console.log(err);
         next(
           new ConflictError('Пользователь с таким email уже зарегистрирован')
         );
       } else if (err.name === 'ValidationError') {
+        console.log(err);
         next(
           new BadRequestError(
             'Переданы некорректные данные при создании пользователя.'
