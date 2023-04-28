@@ -57,13 +57,13 @@ const createUser = (req, res, next) => {
 
   bcrypt
     .hash(req.body.password, 5)
-    .then((hash) => User.create({ name, about, avatar, email, password: hash }))
+    .then((hash) => User.create({ email, password: hash, name, about, avatar }))
     .then((newUser) => {
-      res.send({
+      res.status(201).send({
+        email: newUser.email,
         name: newUser.name,
         about: newUser.about,
         avatar: newUser.avatar,
-        email: newUser.email,
       });
     })
     .catch((err) => {
@@ -72,8 +72,10 @@ const createUser = (req, res, next) => {
           new ConflictError('Пользователь с таким email уже зарегистрирован')
         );
       } else if (err.name === 'ValidationError') {
-        throw new BadRequestError(
-          'Переданы некорректные данные при создании пользователя.'
+        next(
+          new BadRequestError(
+            'Переданы некорректные данные при создании пользователя.'
+          )
         );
       }
 
