@@ -9,15 +9,8 @@
         ]
       }
     ],
-    "no-console": "off",
-    "comma-dangle": "off",
     "object-curly-newline": ["error", {
       "ObjectPattern": "never"
   }]
-  },
-  "env": {
-    "browser": true,
-    "commonjs": true,
-    "es2021": true
   }
 }

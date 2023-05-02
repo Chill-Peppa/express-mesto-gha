@@ -44,10 +44,6 @@ const getInfoMe = (req, res, next) => {
       }
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new BadRequestError('Пользователя с  таким id не существует.'));
-        return;
-      }
       next(err);
     });
 };
@@ -68,16 +64,14 @@ const createUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.code === 11000) {
-        console.log(err);
         next(
-          new ConflictError('Пользователь с таким email уже зарегистрирован')
+          new ConflictError('Пользователь с таким email уже зарегистрирован'),
         );
       } else if (err.name === 'ValidationError') {
-        console.log(err);
         next(
           new BadRequestError(
-            'Переданы некорректные данные при создании пользователя.'
-          )
+            'Переданы некорректные данные при создании пользователя.',
+          ),
         );
       } else {
         next(err);
@@ -121,7 +115,7 @@ const updateProfile = (req, res, next) => {
     {
       new: true,
       runValidators: true,
-    }
+    },
   )
     .then((user) => {
       if (!user) {
@@ -134,8 +128,8 @@ const updateProfile = (req, res, next) => {
       if (err.name === 'ValidationError') {
         next(
           new BadRequestError(
-            'Переданы некорректные данные при обновлении профиля.'
-          )
+            'Переданы некорректные данные при обновлении профиля.',
+          ),
         );
         return;
       }
@@ -153,7 +147,7 @@ const updateAvatar = (req, res, next) => {
     {
       new: true,
       runValidators: true,
-    }
+    },
   )
     .then((user) => {
       if (!user) {
@@ -166,8 +160,8 @@ const updateAvatar = (req, res, next) => {
       if (err.name === 'ValidationError') {
         next(
           new BadRequestError(
-            'Переданы некорректные данные при обновлении аватара.'
-          )
+            'Переданы некорректные данные при обновлении аватара.',
+          ),
         );
         return;
       }

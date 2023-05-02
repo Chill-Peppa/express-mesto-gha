@@ -9,14 +9,14 @@ const createCard = (req, res, next) => {
 
   Card.create({ name, link, owner: _id })
     .then((newCard) => {
-      res.send(newCard);
+      res.status(201).send(newCard);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(
           new BadRequestError(
-            'Переданы некорректные данные при создании карточки.'
-          )
+            'Переданы некорректные данные при создании карточки.',
+          ),
         );
         return;
       }
@@ -26,6 +26,7 @@ const createCard = (req, res, next) => {
 
 const getAllCards = (req, res, next) => {
   Card.find({})
+    .populate(['owner', 'likes'])
     .then((cards) => {
       res.send(cards);
     })
@@ -37,14 +38,14 @@ const getAllCards = (req, res, next) => {
 const deleteCard = (req, res, next) => {
   const { cardId } = req.params;
 
-  Card.findByIdAndRemove(cardId)
+  Card.findById(cardId)
     .then((card) => {
       if (!card) {
         throw new NotFoundError('Карточка с указанным id не найдена.');
       } else if (card.owner.toString() !== req.user._id) {
         throw new ForbiddenError('Запрещено удалять чужие карточки.');
       } else {
-        res.send(card);
+        return Card.deleteOne({ _id: cardId }).then(() => res.send(card));
       }
     })
     .catch((err) => {
@@ -62,7 +63,7 @@ const likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     cardId,
     { $addToSet: { likes: owner } }, // добавить _id в массив, если его там нет
-    { new: true }
+    { new: true },
   )
     .then((card) => {
       if (!card) {
@@ -87,7 +88,7 @@ const dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     cardId,
     { $pull: { likes: owner } }, // убрать _id из массива
-    { new: true }
+    { new: true },
   )
     .then((card) => {
       if (!card) {
